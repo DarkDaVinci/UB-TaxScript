@@ -5,12 +5,10 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("overlay").style.display = "none";
   document.getElementById("mainMenu").style.display = "none";
 
-  // ESC zapre
   document.addEventListener("keydown", e => {
     if (e.key === "Escape") closeUI();
   });
 
-  // drsniki → updateUI
   document.getElementById("baseTax").addEventListener("input", updateUI);
   document.getElementById("vehicleTax").addEventListener("input", updateUI);
 });
@@ -18,15 +16,13 @@ document.addEventListener("DOMContentLoaded", () => {
 window.addEventListener("message", event => {
   const d = event.data;
   if (d.action === "open") {
-    // shrani
+
     current.interval = d.interval;
     current.stats    = d.stats;
 
-    // pokaži overlay in menu
     document.getElementById("overlay").style.display = "block";
     document.getElementById("mainMenu").style.display = "flex";
 
-    // nastavi drsnike in boxe
     document.getElementById("intVal").innerText  = d.interval;
     document.getElementById("baseTax").value     = d.baseTax;
     document.getElementById("baseVal").innerText  = d.baseTax;
@@ -75,7 +71,6 @@ function updateUI() {
 
   document.getElementById("estimateText").innerText = total.toFixed(0);
 
-  // osveži pie chart
   const ctx = document.getElementById("pieChart").getContext("2d");
   if (pieChart) pieChart.destroy();
   pieChart = new Chart(ctx, {

@@ -3,16 +3,22 @@ game 'gta5'
 
 description 'Skripta za davke'
 author 'DarkDaVinci'
-version '1.0.0'
+version '1.0.1'
 
+lua54 'yes'
+
+shared_script 'config.lua'
+
+client_scripts { 'client.lua' }
 server_scripts {
-    '@es_extended/imports.lua',     --- SAMO ZA ESx!!!!
-    '@oxmysql/lib/MySQL.lua',      -- oxmysql obvezen
-    '@ox_lib/init.lua',            -- ox_lib obvezen
-    'config.lua',
+    '@oxmysql/lib/MySQL.lua',
     'server.lua'
 }
 
+ui_page 'web/index.html'
 
-lua54 'yes'
-dependency 'ox_lib'
+files {
+    'web/index.html',
+    'web/style.css',
+    'web/script.js'
+}

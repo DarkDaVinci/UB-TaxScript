@@ -5,7 +5,7 @@ CreateThread(function()
     TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
     Wait(50)
   end
-  -- ob zagonu poskrbimo, da UI ni prikazan in fokus ni zaklenjen
+  -- ob zagonu da se UI ne prikaze (bug fix)
   SetNuiFocus(false, false)
   SendNUIMessage({ action = "close" })
 end)
@@ -19,7 +19,7 @@ RegisterCommand("upravljaj_davke", function()
         type        = "error"
       })
     end
-    -- pošlji parametre v NUI
+    -- posiljanje vrednosti v NUI (Mozen glitch)
     SetNuiFocus(true, true)
     SendNUIMessage({
       action     = "open",
@@ -28,6 +28,7 @@ RegisterCommand("upravljaj_davke", function()
       interval   = d.interval,
       stats      = d.stats
     })
+    ---------
   end)
 end)
 
@@ -48,7 +49,7 @@ AddEventHandler("davki:closeMenu", function()
   SetNuiFocus(false, false)
 end)
 
--- Za hitro čiščenje UI overlay-a
+---- Funkcija doli ne pomembna bile so tezave z overlay in je samo zato d aocisti ekran da ni temen
 RegisterCommand("resetui", function()
     SetNuiFocus(false, false)
     SendNUIMessage({ action = "close" })

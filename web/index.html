@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Davki Upravljanje</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Upravljanje Davkov</h1>
+    <label>Osnovni davek ($):</label>
+    <input type="number" id="baseTax" value="50" min="0">
+    <label>Davek na vozilo ($):</label>
+    <input type="number" id="vehicleTax" value="100" min="0">
+    <div class="btns">
+      <button onclick="save()">Shrani</button>
+      <button onclick="closeUI()">Zapri</button>
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>

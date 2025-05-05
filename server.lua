@@ -4,26 +4,40 @@ local baseTax = Config.BaseTax
 local vehicleTax = Config.VehicleTax
 
 
-lib.addCommand('upravljaj_davke', {
-    help = 'Upravljaj davke (samo za zupana)',
-    restricted = false
-}, function(source)
+ESX.RegisterServerCallback("davki:canManageTaxes", function(source, cb)
     local xPlayer = ESX.GetPlayerFromId(source)
-    if not xPlayer then return end
+    local hasAccess = xPlayer and xPlayer.job.name == Config.AllowedJob and xPlayer.job.grade >= Config.AllowedGrade
+    cb(hasAccess)
+end)
 
-    if xPlayer.job.name ~= Config.AllowedJob or xPlayer.job.grade < Config.AllowedGrade then
-        return lib.notify(source, { type = 'error', description = 'Nimaš dovoljenja.' })
+
+RegisterServerEvent("davki:updateTaxes")
+AddEventHandler("davki:updateTaxes", function(data)
+    local src = source
+    local xPlayer = ESX.GetPlayerFromId(src)
+
+    if xPlayer and xPlayer.job.name == Config.AllowedJob and xPlayer.job.grade >= Config.AllowedGrade then
+        local newBase = tonumber(data.base)
+        local newVehicle = tonumber(data.vehicle)
+
+        if newBase and newVehicle then
+            baseTax = newBase
+            vehicleTax = newVehicle
+            lib.notify(src, {
+                title = "Davčna Uprava",
+                description = "Davki uspešno posodobljeni!",
+                type = "success"
+            })
+        else
+            lib.notify(src, {
+                title = "Napaka",
+                description = "Neveljavna vrednost davkov.",
+                type = "error"
+            })
+        end
+    else
+        DropPlayer(src, "Poskus manipulacije z davki brez dovoljenja.")
     end
-
-    lib.inputDialog('Upravljanje davkov', {
-        { type = 'number', label = 'Osnovni davek ($)', default = baseTax, min = 0 },
-        { type = 'number', label = 'Davek na vozilo ($)', default = vehicleTax, min = 0 }
-    }, function(data)
-        if not data then return end
-        baseTax = tonumber(data[1]) or baseTax
-        vehicleTax = tonumber(data[2]) or vehicleTax
-        lib.notify(source, { type = 'success', description = 'Davki posodobljeni.' })
-    end)
 end)
 
 
@@ -46,17 +60,15 @@ CreateThread(function()
                     if xPlayer.getAccount('bank').money >= totalTax then
                         xPlayer.removeAccountMoney('bank', totalTax)
 
-                     ------ Notification ------------
+                        -- notification
                         lib.notify(playerId, {
-                            title = 'Davčna Uprava',
-                            description = ('Plačal si davek v višini: $%s'):format(totalTax),
-                            type = 'success'
+                            title = "Davčna Uprava",
+                            description = ("Plačal si davek v višini: $%s"):format(totalTax),
+                            type = "inform"
                         })
-                     --------------------------------
 
-
-                        -- Pridobi trenutni balance iz JSON `data` stolpca
-                        exports.oxmysql:execute('SELECT data FROM '..Config.BusinessTable..' WHERE id = ?', {
+                        ----- doda dnar cityhallu  
+                        exports.oxmysql:execute('SELECT data FROM ' .. Config.BusinessTable .. ' WHERE id = ?', {
                             Config.BusinessId
                         }, function(businessResult)
                             if businessResult[1] then
@@ -64,16 +76,16 @@ CreateThread(function()
                                 businessData.balance = (businessData.balance or 0) + totalTax
                                 local newData = json.encode(businessData)
 
-                                exports.oxmysql:execute('UPDATE '..Config.BusinessTable..' SET data = ? WHERE id = ?', {
+                                exports.oxmysql:execute('UPDATE ' .. Config.BusinessTable .. ' SET data = ? WHERE id = ?', {
                                     newData, Config.BusinessId
                                 })
                             end
                         end)
                     else
                         lib.notify(playerId, {
-                            title = 'Davčna Uprava',
-                            description = 'Nimaš dovolj denarja za plačilo davka!',
-                            type = 'error'
+                            title = "Davčna Uprava",
+                            description = "Nimaš dovolj denarja za plačilo davka!",
+                            type = "error"
                         })
                     end
                 end)

@@ -1,0 +1,39 @@
+body {
+    background-color: rgba(0, 0, 0, 0.75);
+    font-family: Arial, sans-serif;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+  
+  .container {
+    background: #1c1c1c;
+    padding: 30px;
+    border-radius: 10px;
+    width: 300px;
+  }
+  
+  input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: none;
+    border-radius: 5px;
+  }
+  
+  .btns button {
+    width: 48%;
+    padding: 10px;
+    margin-top: 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+  }
+  
+  .btns button:last-child {
+    background-color: #f44336;
+  }
+  

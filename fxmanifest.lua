@@ -9,9 +9,15 @@ lua54 'yes'
 
 shared_script 'config.lua'
 
-client_scripts { 'client.lua' }
+client_scripts {
+    '@es_extended/locale.lua',
+    '@ox_lib/init.lua',
+    'client.lua'
+}
+
 server_scripts {
     '@oxmysql/lib/MySQL.lua',
+    '@ox_lib/init.lua',
     'server.lua'
 }
 
@@ -21,4 +27,9 @@ files {
     'web/index.html',
     'web/style.css',
     'web/script.js'
+}
+
+dependencies {
+    'ox_lib',
+    'es_extended'
 }

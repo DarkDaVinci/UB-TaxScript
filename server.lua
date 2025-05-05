@@ -3,13 +3,19 @@ ESX = exports["es_extended"]:getSharedObject()
 local baseTax = Config.BaseTax
 local vehicleTax = Config.VehicleTax
 
+local function SafeNotify(target, data)
+    if lib then
+        lib.notify(target, data)
+    else
+        TriggerClientEvent('ox_lib:notify', target, data)
+    end
+end
 
 ESX.RegisterServerCallback("davki:canManageTaxes", function(source, cb)
     local xPlayer = ESX.GetPlayerFromId(source)
     local hasAccess = xPlayer and xPlayer.job.name == Config.AllowedJob and xPlayer.job.grade >= Config.AllowedGrade
     cb(hasAccess)
 end)
-
 
 RegisterServerEvent("davki:updateTaxes")
 AddEventHandler("davki:updateTaxes", function(data)
@@ -23,23 +29,25 @@ AddEventHandler("davki:updateTaxes", function(data)
         if newBase and newVehicle then
             baseTax = newBase
             vehicleTax = newVehicle
-            lib.notify(src, {
+
+            TriggerClientEvent("davki:closeMenu", src)
+
+            SafeNotify(src, {
                 title = "Davčna Uprava",
                 description = "Davki uspešno posodobljeni!",
                 type = "success"
             })
         else
-            lib.notify(src, {
+            SafeNotify(src, {
                 title = "Napaka",
                 description = "Neveljavna vrednost davkov.",
                 type = "error"
             })
         end
     else
-        DropPlayer(src, "Poskus manipulacije z davki brez dovoljenja.")
+        DropPlayer(src, "Neavtoriziran poskus spremembe davkov.")
     end
 end)
-
 
 CreateThread(function()
     while true do
@@ -48,11 +56,15 @@ CreateThread(function()
         for _, playerId in ipairs(ESX.GetPlayers()) do
             local xPlayer = ESX.GetPlayerFromId(playerId)
             if xPlayer then
-                local identifier = xPlayer.getIdentifier()
+                local ownedId = xPlayer.getIdentifier()
+                if not ownedId:find("^char%d+:") then
+                    ownedId = "char1:" .. ownedId
+                end
+
                 local totalTax = baseTax
 
-                exports.oxmysql:execute('SELECT COUNT(*) as count FROM user_vehicles WHERE owner = ?', {
-                    identifier
+                exports.oxmysql:execute('SELECT COUNT(*) as count FROM owned_vehicles WHERE owner = ?', {
+                    ownedId
                 }, function(result)
                     local vehicleCount = result[1].count or 0
                     totalTax = totalTax + (vehicleCount * vehicleTax)
@@ -60,14 +72,12 @@ CreateThread(function()
                     if xPlayer.getAccount('bank').money >= totalTax then
                         xPlayer.removeAccountMoney('bank', totalTax)
 
-                        -- notification
-                        lib.notify(playerId, {
+                        SafeNotify(playerId, {
                             title = "Davčna Uprava",
                             description = ("Plačal si davek v višini: $%s"):format(totalTax),
                             type = "inform"
                         })
 
-                        ----- doda dnar cityhallu  
                         exports.oxmysql:execute('SELECT data FROM ' .. Config.BusinessTable .. ' WHERE id = ?', {
                             Config.BusinessId
                         }, function(businessResult)
@@ -82,7 +92,7 @@ CreateThread(function()
                             end
                         end)
                     else
-                        lib.notify(playerId, {
+                        SafeNotify(playerId, {
                             title = "Davčna Uprava",
                             description = "Nimaš dovolj denarja za plačilo davka!",
                             type = "error"

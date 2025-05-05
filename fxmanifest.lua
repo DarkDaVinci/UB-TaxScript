@@ -2,8 +2,8 @@ fx_version 'cerulean'
 game 'gta5'
 
 author 'DarkDaVinci'
-description 'ESX Davčna Skripta z NUI, ox_lib in Statistiko v enem meniju'
-version '1.2.0'
+description 'ESX Davcna Skripta za dinamicno upravljanje'
+version '1.3.0'
 
 lua54 'yes'
 

@@ -1,9 +1,9 @@
 ESX = exports["es_extended"]:getSharedObject()
 
--- runtime davki, se preberejo iz DB
+-- davki se sedaj berejo iz DB ker je lažje spremenit potem iz NUI
 local baseTax, vehicleTax = Config.BaseTax, Config.VehicleTax
 
--- varna notifikacija
+
 local function SafeNotify(target, data)
   if lib then
     lib.notify(target, data)
@@ -12,7 +12,7 @@ local function SafeNotify(target, data)
   end
 end
 
--- 0) ob zagonu naloži davke iz tax_config
+---- ob zagunu nalozi presetane davke
 CreateThread(function()
   exports.oxmysql:execute('SELECT base_tax, vehicle_tax FROM tax_config WHERE id = 1', {}, function(res)
     if res and res[1] then
@@ -25,7 +25,7 @@ CreateThread(function()
   end)
 end)
 
--- 1) Periodični pobirki davka
+----- Funkcija ki zbira davke vaske tolko časa recimo (20min) --- basicly main fun.
 CreateThread(function()
   while true do
     Wait(Config.TaxInterval * 60000)
@@ -37,7 +37,7 @@ CreateThread(function()
       local oId = xP.getIdentifier()
       if not oId:find("^char%d+:") then oId = "char1:"..oId end
 
-      -- preštej vozila
+      -- ta del je da bere koliko avtov ima uporabnik da mu da dolocen davek recimo ce ima 3 avte je to 3x100 in placa 300$
       exports.oxmysql:execute(
         'SELECT COUNT(*) as cnt FROM owned_vehicles WHERE owner = ?',
         { oId },
@@ -53,7 +53,7 @@ CreateThread(function()
               type        = "inform"
             })
 
-            -- posodobi Cityhall balance
+            -- to posodablja racun od vms_cityhalla, sicer sem mislo naredi posebej "trezor" (databazo) za shranjen denar ampak nasemu serverju to bolj pase. Komot lahko sami spremenite.
             exports.oxmysql:execute(
               'SELECT data FROM '..Config.BusinessTable..' WHERE id = ?',
               { Config.BusinessId },
@@ -83,7 +83,7 @@ CreateThread(function()
   end
 end)
 
--- 2) Snapshot statistike vsakih 30 min
+---- vsake 30 min bere statistiko ogralcev na strezniku da oceni prihodke naslednjega intervala
 local function SaveSnapshot(pc, avgV)
   exports.oxmysql:execute(
     'INSERT INTO tax_statistics (timestamp, player_count, avg_vehicles) VALUES (?, ?, ?)',
@@ -93,7 +93,7 @@ end
 
 CreateThread(function()
   while true do
-    Wait(30 * 60 * 1000)  -- 30 minut
+    Wait(30 * 60 * 1000)  -- 30 m
     local pls = ESX.GetPlayers()
     local tp, tv, done = #pls, 0, 0
 
@@ -124,7 +124,9 @@ CreateThread(function()
   end
 end)
 
--- 3) Callback za UI: pridobi davke, interval in statistiko
+
+
+
 ESX.RegisterServerCallback("davki:getTaxData", function(src, cb)
   local xP = ESX.GetPlayerFromId(src)
   if not (xP and xP.job.name == Config.AllowedJob and xP.job.grade >= Config.AllowedGrade) then
@@ -148,7 +150,8 @@ ESX.RegisterServerCallback("davki:getTaxData", function(src, cb)
   end)
 end)
 
--- 4) Event: shranjevanje novih davkov + persistenca
+
+
 RegisterServerEvent("davki:updateTaxes")
 AddEventHandler("davki:updateTaxes", function(data)
   local src = source
@@ -160,12 +163,13 @@ AddEventHandler("davki:updateTaxes", function(data)
   local nb, nv = tonumber(data.base), tonumber(data.vehicle)
   if nb and nv then
     baseTax, vehicleTax = nb, nv
-    -- shrani v DB
+    ---- shrani v DB
     exports.oxmysql:execute(
       'UPDATE tax_config SET base_tax = ?, vehicle_tax = ? WHERE id = 1',
       { baseTax, vehicleTax }
     )
-    -- sporoči clientu in zapri UI
+
+      
     TriggerClientEvent("davki:closeMenu", src)
     SafeNotify(src, {
       title       = "Davčna Uprava",

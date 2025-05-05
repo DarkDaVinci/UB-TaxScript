@@ -1,22 +1,59 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="sl">
 <head>
   <meta charset="UTF-8">
-  <title>Davki Upravljanje</title>
+  <title>Davki & Prihodki</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="container">
-    <h1>Upravljanje Davkov</h1>
-    <label>Osnovni davek ($):</label>
-    <input type="number" id="baseTax" value="50" min="0">
-    <label>Davek na vozilo ($):</label>
-    <input type="number" id="vehicleTax" value="100" min="0">
+  <div id="overlay"></div>
+
+  <div class="container" id="mainMenu">
+    <h1>Davčno Upravljanje</h1>
+
+    <!-- Slider sekcija -->
+    <div class="slider-row">
+      <div class="slider-group">
+        <label for="baseTax">Osnovni davek</label>
+        <input type="range" id="baseTax" min="5" max="100" step="1">
+      </div>
+      <div class="value-box" id="baseBox">
+        <span id="baseVal">50</span>$ / osebo
+      </div>
+    </div>
+
+    <div class="slider-row">
+      <div class="slider-group">
+        <label for="vehicleTax">Davek na vozilo</label>
+        <input type="range" id="vehicleTax" min="10" max="200" step="1">
+      </div>
+      <div class="value-box" id="vehBox">
+        <span id="vehVal">100</span>$ / osebo
+      </div>
+    </div>
+
     <div class="btns">
-      <button onclick="save()">Shrani</button>
-      <button onclick="closeUI()">Zapri</button>
+      <button class="btn-save" onclick="save()">Shrani</button>
+      <button class="btn-close" onclick="closeUI()">Zapri</button>
+    </div>
+
+    <hr>
+
+    <!-- Graf + forecast -->
+    <div class="bottom-row">
+      <div class="chart-box">
+        <canvas id="pieChart"></canvas>
+      </div>
+      <div class="forecast-box">
+        <h2>Ocenjen prihodek čez <span id="intVal">20</span> min:</h2>
+        <div class="forecast-value">
+          $<span id="estimateText">–</span>
+        </div>
+      </div>
     </div>
   </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="script.js"></script>
 </body>
 </html>

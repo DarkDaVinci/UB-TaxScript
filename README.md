@@ -11,11 +11,15 @@ Skripta periodično pobira davek od igralcev na strežniku in nakazuje sredstva 
 - ✅ Podpora za **ESX** in **oxmysql**
 - ✅ Custom **NUI** meni za urejanje davkov
 - ✅ **ox_lib notify** sistem za obveščanje igralcev
+- ✅ Statistika o prihodkih v drzavno zakladnico na podlagi stare statistike igralcev
+- ✅ Dinamična odzivnost NUI
+- ✅ Sodoben UI.
 
 ---
 
-## 🗂️ Struktura projekta
+## 📁 Struktura projekta
 
+```
 davki_resource/
 ├── fxmanifest.lua
 ├── config.lua
@@ -25,10 +29,11 @@ davki_resource/
     ├── index.html
     ├── style.css
     └── script.js
+```
 
 
 ---
 
-## TO-DO
+## Slika
 
-Statistika, da lahko na podlagi približno igranih igralcev se izračuna kakšen bo davek v enem tedno če oseba nastavi davek recimo na 10$
+![Davčna tabela](primer.png)
